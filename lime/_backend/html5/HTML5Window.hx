@@ -56,6 +56,8 @@ class HTML5Window {
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var unusedTouchesPool = new List<Touch> ();
+	private var mouseLastX:Float;
+	private var mouseLastY:Float;
 	
 	
 	public function new (parent:Window) {
@@ -342,7 +344,10 @@ class HTML5Window {
 				case "mousemove":
 					
 					parent.onMouseMove.dispatch (x, y);
-				
+					parent.onMouseMoveRelative.dispatch (x - mouseLastX, y - mouseLastY);
+					
+					mouseLastX = x;
+					mouseLastY = y;
 				default:
 				
 			}
