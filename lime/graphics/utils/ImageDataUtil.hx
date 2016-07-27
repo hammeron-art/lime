@@ -20,7 +20,6 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
-@:access(lime.graphics.ImageBuffer)
 @:access(lime.math.color.RGBA)
 
 
@@ -47,7 +46,7 @@ class ImageDataUtil {
 			var greenTable = colorMatrix.getGreenTable ();
 			var blueTable = colorMatrix.getBlueTable ();
 			
-			var row, offset, pixel:RGBA;
+			var row, offset, pixel:RGBA = 0;
 			
 			for (y in 0...dataView.height) {
 				
@@ -68,7 +67,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -111,7 +109,7 @@ class ImageDataUtil {
 			var srcPremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 			
-			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, value = 0;
+			var srcPosition, destPosition, srcPixel:RGBA = 0, destPixel:RGBA = 0, value = 0;
 			
 			for (y in 0...destView.height) {
 				
@@ -153,7 +151,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -178,7 +175,7 @@ class ImageDataUtil {
 			var sourcePremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 			
-			var sourcePosition, destPosition, sourcePixel:RGBA;
+			var sourcePosition, destPosition, sourcePixel:RGBA = 0;
 			
 			if (!mergeAlpha || !sourceImage.transparent) {
 				
@@ -202,7 +199,7 @@ class ImageDataUtil {
 			} else {
 				
 				var sourceAlpha, destAlpha, oneMinusSourceAlpha, blendAlpha;
-				var destPixel:RGBA;
+				var destPixel:RGBA = 0;
 				
 				if (alphaImage == null) {
 					
@@ -252,7 +249,7 @@ class ImageDataUtil {
 					var alphaPremultiplied = alphaImage.buffer.premultiplied;
 					
 					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
-					var alphaPosition, alphaPixel:RGBA;
+					var alphaPosition, alphaPixel:RGBA = 0;
 					
 					for (y in 0...alphaView.height) {
 						
@@ -300,7 +297,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -333,7 +329,6 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
-			if (premultiplied) fillColor.multiplyAlpha ();
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
@@ -344,7 +339,7 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					fillColor.writeUInt8 (data, row + (x * 4), format, false);
+					fillColor.writeUInt8 (data, row + (x * 4), format, premultiplied);
 					
 				}
 				
@@ -353,7 +348,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -375,7 +369,7 @@ class ImageDataUtil {
 			
 			var fillColor:RGBA = color;
 			
-			var hitColor:RGBA;
+			var hitColor:RGBA =  0;
 			hitColor.readUInt8 (data, ((y + image.offsetY) * (image.buffer.width * 4)) + ((x + image.offsetX) * 4), format, premultiplied);
 			
 			if (!image.transparent) {
@@ -386,8 +380,6 @@ class ImageDataUtil {
 			}
 			
 			if (fillColor == hitColor) return;
-			
-			if (premultiplied) fillColor.multiplyAlpha();
 			
 			var dx = [ 0, -1, 1, 0 ];
 			var dy = [ -1, 0, 0, 1 ];
@@ -401,7 +393,7 @@ class ImageDataUtil {
 			queue.push (x);
 			queue.push (y);
 			
-			var curPointX, curPointY, nextPointX, nextPointY, nextPointOffset, readColor:RGBA;
+			var curPointX, curPointY, nextPointX, nextPointY, nextPointOffset, readColor:RGBA = 0;
 			
 			while (queue.length > 0) {
 				
@@ -424,7 +416,7 @@ class ImageDataUtil {
 					
 					if (readColor == hitColor) {
 						
-						fillColor.writeUInt8 (data, nextPointOffset, format, false);
+						fillColor.writeUInt8 (data, nextPointOffset, format, premultiplied);
 						
 						queue.push (nextPointX);
 						queue.push (nextPointY);
@@ -438,7 +430,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -612,7 +603,7 @@ class ImageDataUtil {
 	
 	public static function getPixel (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
-		var pixel:RGBA;
+		var pixel:RGBA = 0;
 		
 		pixel.readUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		pixel.a = 0;
@@ -630,7 +621,7 @@ class ImageDataUtil {
 	
 	public static function getPixel32 (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
-		var pixel:RGBA;
+		var pixel:RGBA = 0;
 		
 		pixel.readUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
@@ -662,7 +653,7 @@ class ImageDataUtil {
 			var premultiplied = image.buffer.premultiplied;
 			
 			var dataView = new ImageDataView (image, rect);
-			var position, argb:ARGB, bgra:BGRA, pixel:RGBA;
+			var position, argb:ARGB, bgra:BGRA, pixel:RGBA = 0;
 			var destPosition = 0;
 			
 			for (y in 0...dataView.height) {
@@ -718,7 +709,7 @@ class ImageDataUtil {
 			var sourcePremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 			
-			var sourcePosition, destPosition, sourcePixel:RGBA, destPixel:RGBA;
+			var sourcePosition, destPosition, sourcePixel:RGBA = 0, destPixel:RGBA = 0;
 			
 			for (y in 0...destView.height) {
 				
@@ -747,7 +738,6 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -764,7 +754,7 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var length = Std.int (data.length / 4);
-			var pixel:RGBA;
+			var pixel:RGBA = 0;
 			
 			for (i in 0...length) {
 				
@@ -777,7 +767,6 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = true;
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -851,16 +840,6 @@ class ImageDataUtil {
 		buffer.data = newBuffer.data;
 		buffer.width = newWidth;
 		buffer.height = newHeight;
-		
-		#if (js && html5)
-		buffer.__srcImage = null;
-		buffer.__srcImageData = null;
-		buffer.__srcCanvas = null;
-		buffer.__srcContext = null;
-		#end
-		
-		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -980,14 +959,13 @@ class ImageDataUtil {
 		
 		image.buffer.format = format;
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
 	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
-		var pixel:RGBA;
+		var pixel:RGBA = 0;
 		
 		switch (format) {
 			
@@ -1006,14 +984,13 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
 	
 	public static function setPixel32 (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
-		var pixel:RGBA;
+		var pixel:RGBA = 0;
 		
 		switch (format) {
 			
@@ -1027,7 +1004,6 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
@@ -1045,7 +1021,7 @@ class ImageDataUtil {
 			var sourceFormat = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
 			var dataView = new ImageDataView (image, rect);
-			var row, color, pixel:RGBA;
+			var row, color, pixel:RGBA = 0;
 			var transparent = image.transparent;
 			var dataPosition = 0;
 			
@@ -1077,14 +1053,13 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
-		image.version++;
 		
 	}
 	
 	
 	public static function threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int, mask:Int, copySource:Bool, format:PixelFormat):Int {
 		
-		var _color:RGBA, _mask:RGBA, _threshold:RGBA;
+		var _color:RGBA = 0, _mask:RGBA = 0, _threshold:RGBA = 0;
 		
 		switch (format) {
 			
@@ -1142,7 +1117,7 @@ class ImageDataUtil {
 			var srcPremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 			
-			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, pixelMask:Int, test:Bool, value:Int;
+			var srcPosition, destPosition, srcPixel:RGBA = 0, destPixel:RGBA = 0, pixelMask:Int, test:Bool, value:Int;
 			
 			for (y in 0...destView.height) {
 				
@@ -1192,7 +1167,6 @@ class ImageDataUtil {
 		if (hits > 0) {
 			
 			image.dirty = true;
-			image.version++;
 			
 		}
 		
@@ -1213,7 +1187,7 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var length = Std.int (data.length / 4);
-			var pixel:RGBA;
+			var pixel:RGBA = 0;
 			
 			for (i in 0...length) {
 				
@@ -1226,7 +1200,6 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = false;
 		image.dirty = true;
-		image.version++;
 		
 	}
 	

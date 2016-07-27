@@ -944,7 +944,7 @@ class HXProject {
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
 				
 				#if lime
-				if (asset.type == FONT) {
+				/*if (asset.type == FONT) {
 					
 					try {
 						
@@ -953,7 +953,7 @@ class HXProject {
 						
 					} catch (e:Dynamic) {}
 					
-				}
+				}*/
 				#end
 				
 				context.assets.push (embeddedAsset);
