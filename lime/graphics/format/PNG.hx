@@ -2,9 +2,9 @@ package lime.graphics.format;
 
 
 import haxe.io.Bytes;
-import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.system.CFFI;
+import lime.utils.UInt8Array;
 
 #if (js && html5)
 import js.Browser;
@@ -36,7 +36,8 @@ class PNG {
 		
 		if (bufferData != null) {
 			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+			var u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
@@ -56,8 +57,9 @@ class PNG {
 		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
-			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+
+			var u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
@@ -92,8 +94,7 @@ class PNG {
 			return @:privateAccess new Bytes (data.length, data.b);
 			
 		}
-		#end
-
+		
 		#if (!html5 && format)
 		
 		else {
@@ -101,7 +102,12 @@ class PNG {
 			try {
 				
 				var bytes = Bytes.alloc (image.width * image.height * 4 + image.height);
-				var sourceBytes = image.buffer.data.toBytes ();
+				
+				#if flash
+				var sourceBytes = Bytes.ofData (image.buffer.data.getByteBuffer ());
+				#else
+				var sourceBytes = cast image.buffer.data;
+				#end
 				
 				var sourceIndex:Int, index:Int;
 				
@@ -142,7 +148,7 @@ class PNG {
 			
 			for (i in 0...buffer.length) {
 				
-				bytes.set (i, buffer.charCodeAt (i));
+				bytes[i] = buffer.charCodeAt (i);
 				
 			}
 			
@@ -150,6 +156,7 @@ class PNG {
 			
 		}
 		
+		#end
 		#end
 		
 		return null;
